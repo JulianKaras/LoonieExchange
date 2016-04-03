@@ -1,14 +1,23 @@
 package com.barkerville.loonieexchange;
 
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.TextView;
+
+
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,13 +32,18 @@ public class MainActivity extends AppCompatActivity {
     EditText cadAmountEt;       //Three edit text widgets
     EditText exCadUsdEt;         // that will hold the three
     EditText usdAmountEt;           // respective decimal values
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
             cadAmount = 0.0;
             exCadUsd = 0.0;             //if starting the app from a closed state
             usdAmount = 0.0;
@@ -39,11 +53,50 @@ public class MainActivity extends AppCompatActivity {
             usdAmount = savedInstanceState.getDouble(USD_AMOUNT);
         }
 
-        cadAmountEt = (EditText)findViewById(R.id.cadEditText);    //casting the edit text fields to objects
-        exCadUsdEt = (EditText)findViewById(R.id.exchangeEditText);
-        usdAmountEt = (EditText)findViewById(R.id.usdEditText);
+        cadAmountEt = (EditText) findViewById(R.id.revUsdEditText);    //casting the edit text fields to
+        exCadUsdEt = (EditText) findViewById(R.id.revExchangeEditText);
+        usdAmountEt = (EditText) findViewById(R.id.revCadEditText);
+
+        cadAmountEt.addTextChangedListener(cadAmountListener);
 
 
+    }
+
+    private TextWatcher cadAmountListener = new TextWatcher() {
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            try {
+
+                cadAmount = Double.parseDouble(s.toString());
+
+            } catch (NumberFormatException) {
+
+                cadAmount = 0.0;
+
+            }
+            updateUSDAmount();
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+        }
+    };
+
+    private void updateUSDAmount() {
+
+        double exCadUsd =
+
+        double usdAmount = cadAmount * exCadUsd;
+
+        usdAmountEt.setText(String.format("%.02f", usdAmount));
 
     }
 
@@ -67,5 +120,33 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+
+    private class WebServiceTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            String exCadUsdS = "0.00";
+            HttpURLConnection urlConnection = null;
+            try {
+                URL url = new URL("http://api.fixer.io/latest?base=USD");
+                urlConnection = (HttpURLConnection) url.openConnection();
+                exCadUsdS = getExCadUsd(urlConnection.getInputStream());
+            } catch (IOException e) {
+                Log.e("Main Activity", "Error", e);
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+            return exCadUsdS;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+        }
     }
 }
