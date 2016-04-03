@@ -13,8 +13,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -36,12 +44,21 @@ public class MainActivity extends AppCompatActivity {
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
+    private GoogleApiClient client;
+
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        WebServiceTask webServiceTask = new WebServiceTask();
+        webServiceTask.execute("http://api.fixer.io/latest?base=USD");
 
         if (savedInstanceState == null) {
             cadAmount = 0.0;
@@ -60,6 +77,9 @@ public class MainActivity extends AppCompatActivity {
         cadAmountEt.addTextChangedListener(cadAmountListener);
 
 
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     private TextWatcher cadAmountListener = new TextWatcher() {
@@ -76,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
                 cadAmount = Double.parseDouble(s.toString());
 
-            } catch (NumberFormatException) {
+            } catch (NumberFormatException e) {
 
                 cadAmount = 0.0;
 
@@ -90,11 +110,11 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private void updateUSDAmount() {
+    public void updateUSDAmount() {
 
-        double exCadUsd =
-
-        double usdAmount = cadAmount * exCadUsd;
+        exCadUsd = Double.parseDouble(String.valueOf(exCadUsdEt));
+        exCadUsd = 1 / exCadUsd;  // gets Canadian to American rate from reciprocal
+        usdAmount = cadAmount * (1 / exCadUsd);
 
         usdAmountEt.setText(String.format("%.02f", usdAmount));
 
@@ -122,9 +142,55 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.barkerville.loonieexchange/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.barkerville.loonieexchange/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
+        client.disconnect();
+    }
 
 
     private class WebServiceTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected void onPostExecute(String exCadUsdS) {
+            super.onPostExecute(exCadUsdS);
+            exCadUsdEt.setText(String.format("%.02f", exCadUsdS));
+        }
+
         @Override
         protected String doInBackground(String... params) {
             String exCadUsdS = "0.00";
@@ -132,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 URL url = new URL("http://api.fixer.io/latest?base=USD");
                 urlConnection = (HttpURLConnection) url.openConnection();
-                exCadUsdS = getExCadUsd(urlConnection.getInputStream());
+                exCadUsdS = getExUsdCad(urlConnection.getInputStream());
             } catch (IOException e) {
                 Log.e("Main Activity", "Error", e);
             } finally {
@@ -143,10 +209,37 @@ public class MainActivity extends AppCompatActivity {
             return exCadUsdS;
         }
 
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
+        protected String getExUsdCad(InputStream in) {
+            StringBuilder stringBuilder = new StringBuilder();
+            BufferedReader bufferedReader = null;
+
+            try {
+                bufferedReader = new BufferedReader(new InputStreamReader(in));
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(line + "\n");
+                }
+                //JSON needs to be parsed here
+                JSONObject reader = new JSONObject(line);
+                JSONObject rate = reader.getJSONObject("rates");
+                String exRate = rate.getString("CAD");
+                Log.i("Returned data", stringBuilder.toString());
+                return exRate;
+            } catch (Exception e) {
+                Log.e("MainActivity", "Error", e);
+            } finally {
+                if (bufferedReader != null) {
+                    try {
+                        bufferedReader.close();
+                    } catch (final IOException e) {
+                        Log.e("PlaceholderFragment", "Error closing stream", e);
+                    }
+                }
+            }
+            return "Unable to get exchange rate. Please try again later.";
 
         }
+
+
     }
 }
