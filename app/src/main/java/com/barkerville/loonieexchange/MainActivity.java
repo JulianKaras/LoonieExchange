@@ -40,16 +40,6 @@ public class MainActivity extends AppCompatActivity {
     EditText cadAmountEt;       //Three edit text widgets
     EditText exCadUsdEt;         // that will hold the three
     EditText usdAmountEt;           // respective decimal values
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
-
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
 
 
     @Override
@@ -77,10 +67,9 @@ public class MainActivity extends AppCompatActivity {
         cadAmountEt.addTextChangedListener(cadAmountListener);
 
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
     }
+
 
     private TextWatcher cadAmountListener = new TextWatcher() {
 
@@ -142,45 +131,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://com.barkerville.loonieexchange/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(client, viewAction);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://com.barkerville.loonieexchange/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(client, viewAction);
-        client.disconnect();
-    }
 
 
     private class WebServiceTask extends AsyncTask<String, Void, String> {
@@ -188,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String exCadUsdS) {
             super.onPostExecute(exCadUsdS);
-            exCadUsdEt.setText(String.format("%.02f", exCadUsdS));
+            exCadUsdEt.setText(exCadUsdS);
         }
 
         @Override
@@ -218,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
                 String line;
                 while ((line = bufferedReader.readLine()) != null) {
                     stringBuilder.append(line + "\n");
-                }
+               }
                 //JSON needs to be parsed here
                 JSONObject reader = new JSONObject(line);
                 JSONObject rate = reader.getJSONObject("rates");
