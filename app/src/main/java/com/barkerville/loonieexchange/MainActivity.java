@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         WebServiceTask webServiceTask = new WebServiceTask();
-        webServiceTask.execute("http://api.fixer.io/latest?base=USD");
+        webServiceTask.execute();
 
         if (savedInstanceState == null) {
             cadAmount = 0.0;
@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
             String exCadUsdS = "0.00";
             HttpURLConnection urlConnection = null;
             try {
-                URL url = new URL("http://api.fixer.io/latest?base=USD");
+                URL url = new URL("http://api.fixer.io/latest?base=CAD");
                 urlConnection = (HttpURLConnection) url.openConnection();
                 exCadUsdS = getExUsdCad(urlConnection.getInputStream());
             } catch (IOException e) {
@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
                 //JSON needs to be parsed here
                 JSONObject reader = new JSONObject(line);
                 JSONObject rate = reader.getJSONObject("rates");
-                String exRate = rate.getString("CAD");
+                String exRate = rate.getString("USD");
                 Log.i("Returned data", stringBuilder.toString());
                 return exRate;
             } catch (Exception e) {
