@@ -2,13 +2,13 @@
     <string name="app_name">LoonieExchange</string>
     <string name="action_settings">Settings</string>
     <string name="mainActivityHeading">Convert CAD to USD</string>
-    <string name="cadTextView">Enter CAD amount</string>
-    <string name="exchangeTextView">Current exchange rate</string>
+    <string name="cadTextView">Enter CAD amount ($)</string>
+    <string name="exchangeTextView">Current exchange rate (updated daily)</string>
     <string name="usdTextView">Amount in USD</string>
     <string name="buttonUsdToCad">Convert USD to CAD</string>
     <string name="title_activity_reverse_loonie_exchange">ReverseConversion</string>
     <string name="revActivityHeading">Convert USD to CAD</string>
-    <string name="revUsdTextView">Enter USD amount</string>
+    <string name="revUsdTextView">Enter USD amount ($)</string>
     <string name="revCadTextView">Amount in CAD</string>
     <string name="buttonCadToUsd">Convert CAD to USD</string>
 </resources>

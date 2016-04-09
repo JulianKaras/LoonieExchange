@@ -1,16 +1,21 @@
 package com.barkerville.loonieexchange;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.google.android.gms.appindexing.Action;
@@ -25,6 +30,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.NumberFormat;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -34,18 +40,29 @@ public class MainActivity extends AppCompatActivity {
     private static final String USD_AMOUNT = "AMERICAN_AMOUNT";
 
     private double cadAmount;       //User enters the CAD amount to convert to USD
-    private double exCadUsd;        //variable that stores the exchange rate (conversion) of CAD to USD
+    public double exCadUsd;        //variable that stores the exchange rate (conversion) of CAD to USD
     private double usdAmount;       //converted amount in USD
 
     EditText cadAmountEt;       //Three edit text widgets
     EditText exCadUsdEt;         // that will hold the three
     EditText usdAmountEt;           // respective decimal values
+    Button changeConversion;
+
+    NumberFormat currency = NumberFormat.getCurrencyInstance();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if(toolbar != null) {
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setTitle("LoonieExchange Converter");
+            getSupportActionBar().setHomeButtonEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         WebServiceTask webServiceTask = new WebServiceTask();
         webServiceTask.execute();
@@ -63,8 +80,21 @@ public class MainActivity extends AppCompatActivity {
         cadAmountEt = (EditText) findViewById(R.id.revUsdEditText);    //casting the edit text fields to
         exCadUsdEt = (EditText) findViewById(R.id.revExchangeEditText);
         usdAmountEt = (EditText) findViewById(R.id.revCadEditText);
+        changeConversion = (Button)findViewById(R.id.newActivityButton);
+
+        changeConversion.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+        public void onClick(View view){
+                startActivity(new Intent(MainActivity.this, ReverseLoonieExchange.class));
+            }
+        });
+
 
         cadAmountEt.addTextChangedListener(cadAmountListener);
+
+
+
 
 
 
@@ -101,13 +131,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateUSDAmount() {
 
-        exCadUsd = Double.parseDouble(String.valueOf(exCadUsdEt));
-        exCadUsd = 1 / exCadUsd;  // gets Canadian to American rate from reciprocal
-        usdAmount = cadAmount * (1 / exCadUsd);
-
-        usdAmountEt.setText(String.format("%.02f", usdAmount));
+        exCadUsd = Double.parseDouble(String.valueOf(exCadUsdEt.getText().toString()));
+        usdAmount = cadAmount * (exCadUsd);
+        usdAmountEt.setText(currency.format(usdAmount));
+       // usdAmountEt.setText(String.format("%.02f", usdAmount));
 
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -170,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                     stringBuilder.append(line + "\n");
                }
                 //JSON needs to be parsed here
-                JSONObject reader = new JSONObject(line);
+                JSONObject reader = new JSONObject(stringBuilder.toString());
                 JSONObject rate = reader.getJSONObject("rates");
                 String exRate = rate.getString("USD");
                 Log.i("Returned data", stringBuilder.toString());
