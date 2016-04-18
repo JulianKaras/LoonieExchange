@@ -1,9 +1,8 @@
 package com.barkerville.loonieexchange;
 
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -12,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.NumberFormat;
+import java.util.Locale;
 
 public class ReverseLoonieExchange extends AppCompatActivity {
 
@@ -38,7 +39,7 @@ public class ReverseLoonieExchange extends AppCompatActivity {
     EditText cadAmountEt;
     Button endActivity;
 
-    NumberFormat currency = NumberFormat.getCurrencyInstance();
+    NumberFormat currency = NumberFormat.getCurrencyInstance(Locale.CANADA);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +49,7 @@ public class ReverseLoonieExchange extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if(toolbar != null) {
             setSupportActionBar(toolbar);
-            getSupportActionBar().setTitle("LoonieExchange Converter");
+            getSupportActionBar().setTitle("Quick Loonie Converter");
             getSupportActionBar().setHomeButtonEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
@@ -83,7 +84,44 @@ public class ReverseLoonieExchange extends AppCompatActivity {
 
     }
 
-        private TextWatcher usdAmountListener = new TextWatcher() {
+    @Override
+
+    public void onConfigurationChanged(Configuration newConfig) {
+
+        super.onConfigurationChanged(newConfig);
+
+        if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            Toast.makeText(getApplicationContext(), "Portrait mode", Toast.LENGTH_SHORT).show();
+        } else if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE){
+            Toast.makeText(getApplicationContext(), "Landscape mode", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    protected void onSaveInstanceState(Bundle outState) {
+
+        super.onSaveInstanceState(outState);
+
+        outState.putDouble(USD_AMOUNT, usdAmount);
+        outState.putDouble(REV_EXCHANGE_RATE, exUsdCad);
+        outState.putDouble(CAD_AMOUNT, cadAmount);
+
+
+
+    }
+
+    protected void onRestoreInstanceState(Bundle savedInstanceState){
+
+        super.onRestoreInstanceState(savedInstanceState);
+
+        usdAmount = savedInstanceState.getDouble(USD_AMOUNT);
+        exUsdCad = savedInstanceState.getDouble(REV_EXCHANGE_RATE);
+        cadAmount = savedInstanceState.getDouble(CAD_AMOUNT);
+
+
+    }
+
+
+    private TextWatcher usdAmountListener = new TextWatcher() {
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {

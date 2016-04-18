@@ -53,7 +53,8 @@
         android:layout_marginStart="5dp"
         android:background="@drawable/border_style"
         android:textAlignment="center"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:inputType="numberDecimal"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -86,8 +87,8 @@
         android:textColor="#000000"
         android:textSize="20dp"
         android:text="@string/revCadTextView"
-        android:layout_marginBottom="34dp"
-        android:layout_above="@+id/newActivity2"
+        android:layout_below="@+id/exEditText"
+        android:layout_marginTop="60dp"
         android:layout_centerHorizontal="true"
         android:background="@drawable/border_style"/>
 
@@ -95,9 +96,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/cadEditText"
-        android:layout_below="@+id/exEditText"
+        android:layout_below="@+id/revCadTextView"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="90dp"
         android:paddingRight="50dp"
         android:paddingLeft="50dp"
         android:background="@drawable/border_style"/>
@@ -107,7 +107,7 @@
         android:layout_height="wrap_content"
         android:text="@string/buttonCadToUsd"
         android:id="@+id/newActivity2"
-        android:layout_marginBottom="64dp"
+        android:layout_marginBottom="54dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
 

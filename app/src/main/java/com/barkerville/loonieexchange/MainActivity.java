@@ -1,7 +1,7 @@
 package com.barkerville.loonieexchange;
 
 import android.content.Intent;
-import android.net.Uri;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,13 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.json.JSONObject;
 
@@ -31,6 +26,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.NumberFormat;
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -48,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     EditText usdAmountEt;           // respective decimal values
     Button changeConversion;
 
-    NumberFormat currency = NumberFormat.getCurrencyInstance();
+    NumberFormat currency = NumberFormat.getCurrencyInstance(Locale.US);
 
 
     @Override
@@ -59,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if(toolbar != null) {
             setSupportActionBar(toolbar);
-            getSupportActionBar().setTitle("LoonieExchange Converter");
+            getSupportActionBar().setTitle("Quick Loonie Converter");
             getSupportActionBar().setHomeButtonEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
@@ -98,6 +94,38 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    }
+
+    @Override
+
+    public void onConfigurationChanged(Configuration newConfig) {
+
+        super.onConfigurationChanged(newConfig);
+
+        if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            Toast.makeText(getApplicationContext(), "Portrait mode", Toast.LENGTH_SHORT).show();
+        } else if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE){
+            Toast.makeText(getApplicationContext(), "Landscape mode", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    protected void onSaveInstanceState(Bundle outState) {
+
+        super.onSaveInstanceState(outState);
+
+        outState.putDouble(CAD_AMOUNT, cadAmount);
+        outState.putDouble(EXCHANGE_RATE, exCadUsd);
+        outState.putDouble(USD_AMOUNT, usdAmount);
+
+    }
+
+    protected void onRestoreInstanceState(Bundle savedInstanceState){
+
+        super.onRestoreInstanceState(savedInstanceState);
+
+        cadAmount = savedInstanceState.getDouble(CAD_AMOUNT);
+        exCadUsd = savedInstanceState.getDouble(EXCHANGE_RATE);
+        usdAmount = savedInstanceState.getDouble(USD_AMOUNT);
     }
 
 
